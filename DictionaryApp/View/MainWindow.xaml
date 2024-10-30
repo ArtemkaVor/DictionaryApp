@@ -1,0 +1,63 @@
+﻿<Window x:Class="DictionaryApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" Height="800" Width="800">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Margin="10">
+            <TextBlock Text="Организации" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+            <ListBox ItemsSource="{Binding Organizations}" 
+                     DisplayMemberPath="Name" 
+                     SelectedItem="{Binding SelectedOrganization, Mode=TwoWay}"/>
+            <TextBlock Text="Название организации:" Margin="0,10,0,0"/>
+            <TextBox Text="{Binding SelectedOrganization.Name, UpdateSourceTrigger=PropertyChanged}" Width="200" />
+            <Button Content="Сохранить название" Command="{Binding UpdateOrganizationCommand}" Margin="0,5,0,0" Width="150"/>
+            <Button Content="Добавить организацию" Command="{Binding AddOrganizationCommand}" Margin="0,10,0,0" Width="150"/>
+            <Button Content="Добавить 10 организаций с 100 сотрудниками" 
+        Command="{Binding AddOrganizationsWithEmployeesCommand}" 
+        Margin="0,10,0,0" Width="270"/>
+            <Button Content="Удалить организацию" Command="{Binding DeleteOrganizationCommand}" Margin="0,5,0,0" Width="150"/>
+        </StackPanel>
+
+
+        <StackPanel Grid.Column="1" Margin="10">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Поиск сотрудника:" VerticalAlignment="Center"/>
+                <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" Width="200" Margin="10,0,0,0"/>
+                <Button Content="Найти" Command="{Binding SearchCommand}" Width="80" Margin="10,0,0,0"/>
+            </StackPanel>
+
+            <!-- Список сотрудников в выбранной организации -->
+            <TextBlock Text="Сотрудники" FontSize="16" FontWeight="Bold" Margin="0,10,0,10"/>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                <ListBox ItemsSource="{Binding FilteredEmployees}" 
+             DisplayMemberPath="FullName" 
+             SelectedItem="{Binding SelectedEmployee, Mode=TwoWay}"
+             MaxHeight="300"/>
+            </ScrollViewer>
+
+            <Button Content="Добавить сотрудника" Command="{Binding AddEmployeeCommand}" Margin="0,10,0,0" Width="150"/>
+            <Button Content="Удалить сотрудника" Command="{Binding DeleteEmployeeCommand}" Margin="0,5,0,0" Width="150"/>
+
+            <!-- Детали сотрудника -->
+            <GroupBox Header="Детали сотрудника" Margin="0,20,0,0">
+                <StackPanel Margin="10">
+                    <TextBlock Text="ФИО"/>
+                    <TextBox Text="{Binding SelectedEmployee.FullName}" Width="200"/>
+
+                    <TextBlock Text="Должность" Margin="0,10,0,0"/>
+                    <TextBox Text="{Binding SelectedEmployee.Position}" Width="200"/>
+
+                    <TextBlock Text="Фото" Margin="0,10,0,0"/>
+                    <Image Source="{Binding SelectedEmployee.PhotoPath}" Width="100" Height="100"/>
+                    <Button Content="Загрузить фото" Command="{Binding LoadPhotoCommand}" Width="200"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</Window>
