@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 
 namespace DictionaryApp.ViewModel
 {
@@ -33,20 +34,15 @@ namespace DictionaryApp.ViewModel
                 }
             }
         }
-        public async Task UpdateOrganizationAsync(Organization organization)
-        {
-            if (organization != null)
-            {
-                _context.Organizations.Update(organization);
-                await _context.SaveChangesAsync();
-            }
-        }
 
-        private void OnOrganizationNameChanged()
+
+        public async Task UpdateOrganizationAsync()
         {
             if (_selectedOrganization != null)
             {
-                UpdateOrganizationAsync(_selectedOrganization);
+                _context.Organizations.Update(_selectedOrganization);
+                await _context.SaveChangesAsync();
+                LoadDataCommand.Execute(null);
             }
         }
 
@@ -74,6 +70,8 @@ namespace DictionaryApp.ViewModel
             }
         }
 
+        
+
         private string _searchQuery;
         public string SearchQuery
         {
@@ -97,6 +95,7 @@ namespace DictionaryApp.ViewModel
         public ICommand DeleteEmployeeCommand { get; }
         public ICommand LoadPhotoCommand { get; }
         public ICommand AddOrganizationsWithEmployeesCommand { get; }
+        public ICommand UpdateOrganizationCommand { get; }
 
         public MainViewModel(AppDbContext context)
         {
@@ -112,6 +111,7 @@ namespace DictionaryApp.ViewModel
             LoadDataCommand = new RelayCommandAsync(async () => await LoadDataAsync());
             AddOrganizationCommand = new RelayCommandAsync(async () => await AddOrganizationAsync());
             DeleteOrganizationCommand = new RelayCommandAsync(async () => await DeleteOrganizationAsync());
+            UpdateOrganizationCommand = new RelayCommandAsync(async () => await UpdateOrganizationAsync());
             AddEmployeeCommand = new RelayCommandAsync(async () => await AddEmployeeAsync());
             DeleteEmployeeCommand = new RelayCommandAsync(async () => await DeleteEmployeeAsync());
             LoadPhotoCommand = new RelayCommandAsync(async () => await LoadPhotoAsync());
@@ -121,7 +121,7 @@ namespace DictionaryApp.ViewModel
 
         private async Task LoadDataAsync()
         {
-            var organizations = await _context.Organizations.Include(o => o.Employees).ToListAsync();
+            var organizations = await _context.GetAllOrganizationsAsync();
             Organizations.Clear();
             foreach (var org in organizations)
             {
@@ -131,11 +131,9 @@ namespace DictionaryApp.ViewModel
 
         private async Task AddOrganizationAsync()
         {
-            var organizationName = SelectedOrganization?.Name ?? "Новая Организация"; 
-            var newOrg = new Organization { Name = organizationName };
-            await _context.Organizations.AddAsync(newOrg);
-            await _context.SaveChangesAsync();
-            Organizations.Add(newOrg);
+            var newOrg = new Organization { Name = "Новая Организация" };
+            await _context.AddOrganizationAsync(newOrg);
+            LoadDataCommand.Execute(null);
             SelectedOrganization = newOrg;
         }
 
@@ -143,9 +141,8 @@ namespace DictionaryApp.ViewModel
         {
             if (SelectedOrganization != null)
             {
-                _context.Organizations.Remove(SelectedOrganization);
-                await _context.SaveChangesAsync();
-                Organizations.Remove(SelectedOrganization);
+                await _context.DeleteOrganizationAsync(SelectedOrganization);
+                LoadDataCommand.Execute(null);
                 SelectedOrganization = null;
             }
         }
@@ -154,7 +151,12 @@ namespace DictionaryApp.ViewModel
         {
             if (SelectedOrganization != null)
             {
-                var newEmployee = new Employee { FullName = "Новый Сотрудник", Position = "Должность", PhotoPath = "\\source\\repos\\DictionaryApp\\DictionaryApp\\View\\EmployeePhoto\\PhotoPlug.jpg" };
+                var newEmployee = new Employee
+                {
+                    FullName = "Новый Сотрудник",
+                    Position = "Должность",
+                    PhotoPath = ""
+                };
                 SelectedOrganization.Employees.Add(newEmployee);
                 await _context.SaveChangesAsync();
                 Employees.Add(newEmployee);

@@ -54,7 +54,9 @@
                     <TextBox Text="{Binding SelectedEmployee.Position}" Width="200"/>
 
                     <TextBlock Text="Фото" Margin="0,10,0,0"/>
-                    <Image Source="{Binding SelectedEmployee.PhotoPath}" Width="100" Height="100"/>
+                    <Image Source="{Binding SelectedEmployee.PhotoPath, 
+                FallbackValue='pack://application:,,,/View/EmployeePhoto/PhotoPlug.jpg', 
+                TargetNullValue='pack://application:,,,/View/EmployeePhoto/PhotoPlug.jpg'}" Width ="100" Height="100"/>
                     <Button Content="Загрузить фото" Command="{Binding LoadPhotoCommand}" Width="200"/>
                 </StackPanel>
             </GroupBox>

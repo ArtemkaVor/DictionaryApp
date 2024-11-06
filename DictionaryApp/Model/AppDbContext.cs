@@ -19,4 +19,24 @@ public class AppDbContext : DbContext
         }
     }
 
+    public async Task<List<Organization>> GetAllOrganizationsAsync()
+    {
+        return await Organizations.Include(o => o.Employees).ToListAsync(); //
+    }
+
+    public async Task AddOrganizationAsync(Organization organization)
+    {
+        await Organizations.AddAsync(organization);
+        await SaveChangesAsync();
+    }
+
+    public async Task DeleteOrganizationAsync(Organization organization)
+    {
+        Organizations.Remove(organization);
+        await SaveChangesAsync();
+    }
+
+
+
+
 }
